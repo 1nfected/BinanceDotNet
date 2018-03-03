@@ -67,7 +67,7 @@ namespace BinanceExchange.API.Client.Interfaces
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns></returns>
-        Task<SymbolPriceChangeTickerResponse> GetDailyTicker(string symbol);
+        Task<List<SymbolPriceChangeTickerResponse>> GetDailyTicker(string symbol = null);
 
         /// <summary>
         /// Gets all prices for all symbols

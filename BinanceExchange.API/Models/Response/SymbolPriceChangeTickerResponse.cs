@@ -44,23 +44,30 @@ namespace BinanceExchange.API.Models.Response
         public decimal Volume { get; set; }
 
         [DataMember(Order = 12)]
-        [JsonConverter(typeof(EpochTimeConverter))]
-        public DateTime OpenTime { get; set; }
+        public decimal QuoteVolume { get; set; }
 
         [DataMember(Order = 13)]
         [JsonConverter(typeof(EpochTimeConverter))]
-        public DateTime CloseTime { get; set; }
+        public DateTime OpenTime { get; set; }
 
         [DataMember(Order = 14)]
+        [JsonConverter(typeof(EpochTimeConverter))]
+        public DateTime CloseTime { get; set; }
+
+        [DataMember(Order = 15)]
         [JsonProperty(PropertyName = "firstId")]
         public long FirstTradeId { get; set; }
 
-        [DataMember(Order = 15)]
+        [DataMember(Order = 16)]
         [JsonProperty(PropertyName = "lastId")]
         public long LastId { get; set; }
 
-        [DataMember(Order = 16)]
+        [DataMember(Order = 17)]
         [JsonProperty(PropertyName = "count")]
         public int TradeCount { get; set; }
+
+        [DataMember(Order = 18)]
+        [JsonProperty(PropertyName = "symbol")]
+        public string Symbol { get; set; }
     }
 }

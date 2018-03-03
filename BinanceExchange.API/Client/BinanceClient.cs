@@ -185,11 +185,9 @@ namespace BinanceExchange.API.Client
         /// </summary>
         /// <param name="symbol"></param>
         /// <returns></returns>
-        public async Task<SymbolPriceChangeTickerResponse> GetDailyTicker(string symbol)
+        public async Task<List<SymbolPriceChangeTickerResponse>> GetDailyTicker(string symbol = null)
         {
-            Guard.AgainstNull(symbol);
-
-            return await _apiProcessor.ProcessGetRequest<SymbolPriceChangeTickerResponse>(Endpoints.MarketData.DayPriceTicker(symbol));
+            return await _apiProcessor.ProcessGetRequest<List<SymbolPriceChangeTickerResponse>>(Endpoints.MarketData.DayPriceTicker(symbol));
         }
 
         /// <summary>

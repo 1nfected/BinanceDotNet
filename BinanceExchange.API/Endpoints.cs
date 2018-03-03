@@ -122,7 +122,12 @@ namespace BinanceExchange.API
             /// </summary>
             public static BinanceEndpointData DayPriceTicker(string symbol)
             {
-                return new BinanceEndpointData(new Uri($"{APIPrefix}/{ApiVersion}/ticker/24hr?symbol={symbol}"),
+                var uri = $"{APIPrefix}/{ApiVersion}/ticker/24hr";
+
+                if (!string.IsNullOrWhiteSpace(symbol))
+                    uri += $"?symbol={symbol}";
+
+                return new BinanceEndpointData(new Uri(uri),
                     EndpointSecurityType.None);
             }
 
