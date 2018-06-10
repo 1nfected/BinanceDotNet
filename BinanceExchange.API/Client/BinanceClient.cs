@@ -19,10 +19,7 @@ namespace BinanceExchange.API.Client
     public class BinanceClient : IBinanceClient
     {
         public TimeSpan TimestampOffset {
-            get
-            {
-                return _timestampOffset;
-            }
+            get => _timestampOffset;
             set
             {
                 _timestampOffset = value;
@@ -33,6 +30,7 @@ namespace BinanceExchange.API.Client
         private readonly string _apiKey;
         private readonly string _secretKey;
         private readonly IAPIProcessor _apiProcessor;
+        private readonly int _defaultReceiveWindow;
         private readonly ILog _logger;
 
         /// <summary>
@@ -47,6 +45,7 @@ namespace BinanceExchange.API.Client
             Guard.AgainstNullOrEmpty(configuration.ApiKey);
             Guard.AgainstNull(configuration.SecretKey);
 
+            _defaultReceiveWindow = configuration.DefaultReceiveWindow;
             _apiKey = configuration.ApiKey;
             _secretKey = configuration.SecretKey;
             RequestClient.SetTimestampOffset(configuration.TimestampOffset);
@@ -257,12 +256,14 @@ namespace BinanceExchange.API.Client
         /// <param name="request">The <see cref="QueryOrderRequest"/> that is used to define the order</param>
         /// <param name="receiveWindow"></param>
         /// <returns></returns>
-        public async Task<OrderResponse> QueryOrder(QueryOrderRequest request, int receiveWindow = 5000)
+        public async Task<OrderResponse> QueryOrder(QueryOrderRequest request, int receiveWindow = -1)
         {
+            receiveWindow = SetReceiveWindow(receiveWindow);
             Guard.AgainstNull(request.Symbol);
-      
+
             return await _apiProcessor.ProcessGetRequest<OrderResponse>(Endpoints.Account.QueryOrder(request), receiveWindow);
         }
+
 
         /// <summary>
         /// Cancels an order based on the provided request
@@ -270,8 +271,9 @@ namespace BinanceExchange.API.Client
         /// <param name="request">The <see cref="CancelOrderRequest"/> that is used to define the order</param>
         /// <param name="receiveWindow"></param>
         /// <returns></returns>
-        public async Task<CancelOrderResponse> CancelOrder(CancelOrderRequest request, int receiveWindow = 5000)
+        public async Task<CancelOrderResponse> CancelOrder(CancelOrderRequest request, int receiveWindow = -1)
         {
+            receiveWindow = SetReceiveWindow(receiveWindow);
             Guard.AgainstNull(request.Symbol);
       
             return await _apiProcessor.ProcessDeleteRequest<CancelOrderResponse>(Endpoints.Account.CancelOrder(request), receiveWindow);
@@ -283,8 +285,9 @@ namespace BinanceExchange.API.Client
         /// <param name="request">The <see cref="CurrentOpenOrdersRequest"/> that is used to define the orders</param>
         /// <param name="receiveWindow"></param>
         /// <returns></returns>
-        public async Task<List<OrderResponse>> GetCurrentOpenOrders(CurrentOpenOrdersRequest request, int receiveWindow = 5000)
+        public async Task<List<OrderResponse>> GetCurrentOpenOrders(CurrentOpenOrdersRequest request, int receiveWindow = -1)
         {
+            receiveWindow = SetReceiveWindow(receiveWindow);
             return await _apiProcessor.ProcessGetRequest<List<OrderResponse>>(Endpoints.Account.CurrentOpenOrders(request), receiveWindow);
         }
 
@@ -294,8 +297,9 @@ namespace BinanceExchange.API.Client
         /// <param name="request">The <see cref="AllOrdersRequest"/> that is used to define the orders</param>
         /// <param name="receiveWindow"></param>
         /// <returns></returns>
-        public async Task<List<OrderResponse>> GetAllOrders(AllOrdersRequest request, int receiveWindow = 5000)
+        public async Task<List<OrderResponse>> GetAllOrders(AllOrdersRequest request, int receiveWindow = -1)
         {
+            receiveWindow = SetReceiveWindow(receiveWindow);
             Guard.AgainstNull(request.Symbol);
       
             return await _apiProcessor.ProcessGetRequest<List<OrderResponse>>(Endpoints.Account.AllOrders(request), receiveWindow);
@@ -306,8 +310,9 @@ namespace BinanceExchange.API.Client
         /// </summary>
         /// <param name="receiveWindow"></param>
         /// <returns></returns>
-        public async Task<AccountInformationResponse> GetAccountInformation(int receiveWindow = 5000)
+        public async Task<AccountInformationResponse> GetAccountInformation(int receiveWindow = -1)
         {
+            receiveWindow = SetReceiveWindow(receiveWindow);
             return await _apiProcessor.ProcessGetRequest<AccountInformationResponse>(Endpoints.Account.AccountInformation, receiveWindow);
         }
 
@@ -317,8 +322,9 @@ namespace BinanceExchange.API.Client
         /// <param name="request"></param>
         /// <param name="receiveWindow"></param>
         /// <returns></returns>
-        public async Task<List<AccountTradeReponse>> GetAccountTrades(AllTradesRequest request, int receiveWindow = 5000)
+        public async Task<List<AccountTradeReponse>> GetAccountTrades(AllTradesRequest request, int receiveWindow = -1)
         {
+            receiveWindow = SetReceiveWindow(receiveWindow);
             return await _apiProcessor.ProcessGetRequest<List<AccountTradeReponse>>(Endpoints.Account.AccountTradeList(request), receiveWindow);
         }
 
@@ -328,8 +334,9 @@ namespace BinanceExchange.API.Client
         /// <param name="request"></param>
         /// <param name="receiveWindow"></param>
         /// <returns></returns>
-        public async Task<WithdrawResponse> CreateWithdrawRequest(WithdrawRequest request, int receiveWindow = 5000)
+        public async Task<WithdrawResponse> CreateWithdrawRequest(WithdrawRequest request, int receiveWindow = -1)
         {
+            receiveWindow = SetReceiveWindow(receiveWindow);
             Guard.AgainstNullOrEmpty(request.Asset);
             Guard.AgainstNullOrEmpty(request.Address);
             Guard.AgainstNull(request.Amount);
@@ -343,8 +350,9 @@ namespace BinanceExchange.API.Client
         /// <param name="request"></param>
         /// <param name="receiveWindow"></param>
         /// <returns></returns>
-        public async Task<DepositListResponse> GetDepositHistory(FundHistoryRequest request, int receiveWindow = 5000)
+        public async Task<DepositListResponse> GetDepositHistory(FundHistoryRequest request, int receiveWindow = -1)
         {
+            receiveWindow = SetReceiveWindow(receiveWindow);
             return await _apiProcessor.ProcessGetRequest<DepositListResponse>(Endpoints.Account.DepositHistory(request), receiveWindow);
         }
 
@@ -354,8 +362,9 @@ namespace BinanceExchange.API.Client
         /// <param name="request"></param>
         /// <param name="receiveWindow"></param>
         /// <returns></returns>
-        public async Task<WithdrawListResponse> GetWithdrawHistory(FundHistoryRequest request, int receiveWindow = 5000)
+        public async Task<WithdrawListResponse> GetWithdrawHistory(FundHistoryRequest request, int receiveWindow = -1)
         {
+            receiveWindow = SetReceiveWindow(receiveWindow);
             Guard.AgainstNull(request);
 
             return await _apiProcessor.ProcessGetRequest<WithdrawListResponse>(Endpoints.Account.WithdrawHistory(request), receiveWindow);
@@ -367,8 +376,9 @@ namespace BinanceExchange.API.Client
         /// <param name="request"></param>
         /// <param name="receiveWindow"></param>
         /// <returns></returns>
-        public async Task<DepositAddressResponse> DepositAddress(DepositAddressRequest request, int receiveWindow = 5000)
+        public async Task<DepositAddressResponse> DepositAddress(DepositAddressRequest request, int receiveWindow = -1)
         {
+            receiveWindow = SetReceiveWindow(receiveWindow);
             Guard.AgainstNull(request);
             Guard.AgainstNullOrEmpty(request.Asset);
 
@@ -381,11 +391,21 @@ namespace BinanceExchange.API.Client
         /// <param name="request"></param>
         /// <param name="receiveWindow"></param>
         /// <returns></returns>
-        public async Task<DepositAddressResponse> GetSystemStatus(int receiveWindow = 5000)
+        public async Task<DepositAddressResponse> GetSystemStatus(int receiveWindow = -1)
         {
+            receiveWindow = SetReceiveWindow(receiveWindow);
             return await _apiProcessor.ProcessGetRequest<DepositAddressResponse>(Endpoints.Account.SystemStatus(), receiveWindow);
         }
         #endregion
 
+        private int SetReceiveWindow(int receiveWindow)
+        {
+            if (receiveWindow == -1)
+            {
+                receiveWindow = _defaultReceiveWindow;
+            }
+
+            return receiveWindow;
+        }
     }
 }
